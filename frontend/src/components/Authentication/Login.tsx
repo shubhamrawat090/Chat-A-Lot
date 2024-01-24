@@ -21,7 +21,7 @@ const Login = () => {
 
   return (
     <VStack spacing={"5px"} color="black">
-      <FormControl id="login-emai" isRequired>
+      <FormControl id="login-email" isRequired>
         <FormLabel>Email</FormLabel>
         <Input
           placeholder="Enter Your Email"

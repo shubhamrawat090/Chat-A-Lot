@@ -60,5 +60,22 @@ const authUser = asyncHandler(async (req, res) => {
   }
 });
 
+// /api/user?search=jane
+const allUsers = asyncHandler(async (req, res) => {
+  // if req.query.search exists: make a mongodb OR operation where name, email are matched via regex(case insensitive)
+  const keyword = req.query.search
+    ? {
+        $or: [
+          { name: { $regex: req.query.search, $options: "i" } },
+          { email: { $regex: req.query.search, $options: "i" } },
+        ],
+      }
+    : {};
+
+  // First match the users by the regex expression then give me all the results which do not match the current user
+  const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
+  res.send(users);
+});
+
 // Non-default exports are sent in an object { }
-module.exports = { registerUser, authUser };
+module.exports = { registerUser, authUser, allUsers };

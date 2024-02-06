@@ -11,6 +11,7 @@ connectDB();
 
 // NOTE: Load routes or any db queries after calling connect DB function
 const userRoutes = require("./routes/userRoutes");
+const chatRoutes = require("./routes/chatRoutes");
 
 const app = express();
 
@@ -25,7 +26,9 @@ app.get("/", (req, res) => {
   res.send("API is running successfully");
 });
 
+// All the user routes will start with /api/user
 app.use("/api/user", userRoutes);
+app.use("/api/chat", chatRoutes);
 
 // Our custom created middlewares
 app.use(notFound); // if any route url doesn't exist. It will fall on to this notFound middleware

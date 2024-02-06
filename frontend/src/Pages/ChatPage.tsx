@@ -1,11 +1,12 @@
-import axiosInstance from "../services/axiosInstance";
+import { apiConnector } from "../services/axiosInstance";
 import { useEffect, useState } from "react";
 
 const ChatPage = () => {
-  const [chats, setChats] = useState([]);
+  // When chat is created the write the correct type for them as well
+  const [chats, setChats] = useState<any>([]);
 
   const fetchChats = async () => {
-    const { data } = await axiosInstance.get("/api/chat");
+    const { data } = await apiConnector("GET", "/api/chat");
     setChats(data);
   };
 

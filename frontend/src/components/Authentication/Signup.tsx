@@ -6,8 +6,12 @@ import {
   InputGroup,
   InputRightElement,
   VStack,
+  useToast,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import { AxiosError } from "axios";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { apiConnector } from "../../services/axiosInstance";
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -18,16 +22,136 @@ const Signup = () => {
   const [password, setPassword] = useState<string>();
   const [confirmPassword, setConfirmPassword] = useState<string>();
   const [pic, setPic] = useState<string>();
+  const [loading, setLoading] = useState(false);
+  const toast = useToast();
 
   const togglePassword = () => setShowPassword(!showPassword);
   const toggleConfirmPassword = () =>
     setShowConfirmPassword(!showConfirmPassword);
 
+  const navigate = useNavigate();
+
   const postDetails = (pics: File | null | undefined) => {
     console.log(pics);
+    setLoading(true);
+    if (pics === undefined) {
+      toast({
+        title: "Please Select an Image!",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+      return;
+    }
+
+    if (pics?.type === "image/jpeg" || pics?.type === "image/png") {
+      // Logic for uploading the picture in cloudinary
+      const data = new FormData();
+      data.append("file", pics);
+      data.append("upload_preset", "chat-a-lot");
+      data.append("cloud_name", "dtmbuff4b");
+      fetch("https://api.cloudinary.com/v1_1/dtmbuff4b/image/upload", {
+        method: "post",
+        body: data,
+      })
+        .then((res) => res.json())
+        .then((data: { url: string }) => {
+          setPic(data.url.toString());
+          console.log(data.url.toString());
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error(err);
+          setLoading(false);
+        });
+    } else {
+      toast({
+        title: "Please Select an Image!",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+      return;
+    }
   };
 
-  const submitHandler = () => {};
+  const submitHandler = async () => {
+    setLoading(true);
+    if (!name || !email || !password || !confirmPassword) {
+      toast({
+        title: "Please fill all the fields.",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast({
+        title: "Passwords do not match.",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const body = {
+        name,
+        email,
+        password,
+        pic,
+      };
+
+      const { data } = await apiConnector("POST", "/api/user", body);
+      console.log(data);
+
+      toast({
+        title: "Registration Successful",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+
+      localStorage.setItem("userInfo", JSON.stringify(data));
+      setLoading(false);
+      navigate("/chats");
+    } catch (err: unknown) {
+      const error = err as AxiosError;
+      console.error(error);
+      if (error.response?.data && Object.keys(error.response.data).length > 0) {
+        toast({
+          title: "Error Occurred!",
+          description: (error.response.data as { message: string }).message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom",
+        });
+      } else {
+        toast({
+          title: "Error Occurred!",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom",
+        });
+      }
+      setLoading(false);
+      return;
+    }
+  };
 
   return (
     <VStack spacing={"5px"} color="black">
@@ -94,6 +218,7 @@ const Signup = () => {
         width={"100%"}
         style={{ marginTop: 15 }}
         onClick={submitHandler}
+        isLoading={loading}
       >
         Sign Up
       </Button>

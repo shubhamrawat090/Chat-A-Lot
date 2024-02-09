@@ -17,11 +17,14 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] =
     useState<boolean>(false);
-  const [name, setName] = useState<string>();
-  const [email, setEmail] = useState<string>();
-  const [password, setPassword] = useState<string>();
-  const [confirmPassword, setConfirmPassword] = useState<string>();
-  const [pic, setPic] = useState<string>();
+
+  // Form state variables
+  const [name, setName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [pic, setPic] = useState<string>("");
+
   const [loading, setLoading] = useState(false);
   const toast = useToast();
 
@@ -160,6 +163,7 @@ const Signup = () => {
         <Input
           placeholder="Enter Your Name"
           onChange={(e) => setName(e.target.value)}
+          value={name}
         />
       </FormControl>
 
@@ -168,6 +172,7 @@ const Signup = () => {
         <Input
           placeholder="Enter Your Email"
           onChange={(e) => setEmail(e.target.value)}
+          value={email}
         />
       </FormControl>
 
@@ -178,6 +183,7 @@ const Signup = () => {
             type={showPassword ? "text" : "password"}
             placeholder="Enter Your Password"
             onChange={(e) => setPassword(e.target.value)}
+            value={password}
           />
           <InputRightElement width={"4.5rem"}>
             <Button h="1.75rem" size="sm" onClick={togglePassword}>
@@ -194,6 +200,7 @@ const Signup = () => {
             type={showConfirmPassword ? "text" : "password"}
             placeholder="Enter Your Password Again"
             onChange={(e) => setConfirmPassword(e.target.value)}
+            value={confirmPassword}
           />
           <InputRightElement width={"4.5rem"}>
             <Button h="1.75rem" size="sm" onClick={toggleConfirmPassword}>

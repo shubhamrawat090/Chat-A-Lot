@@ -16,8 +16,8 @@ import { AxiosError } from "axios";
 const Login = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
-  const [email, setEmail] = useState<string>();
-  const [password, setPassword] = useState<string>();
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
 
   const [loading, setLoading] = useState(false);
 

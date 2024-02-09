@@ -10,8 +10,22 @@ import {
 } from "@chakra-ui/react";
 import Login from "../components/Authentication/Login";
 import Signup from "../components/Authentication/Signup";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const HomePage = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const cache = localStorage.getItem("userInfo");
+    const userInfo = cache ? JSON.parse(cache) : null;
+
+    // If user info is present the will redirect to ChatsPage route
+    if (userInfo) {
+      navigate("/chats");
+    }
+  }, [navigate]);
+
   return (
     <Container maxW="xl" centerContent>
       <Box

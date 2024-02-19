@@ -1,9 +1,9 @@
 import { Box } from "@chakra-ui/react";
-import { SearchResultType } from "../miscellaneous/SideDrawer";
 import { CloseIcon } from "@chakra-ui/icons";
+import { UserType } from "../../Context/ChatProvider";
 
 interface UserBadgeItemProps {
-  user: SearchResultType;
+  user: UserType;
   handleFunction: () => void;
 }
 

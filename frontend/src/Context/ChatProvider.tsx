@@ -15,6 +15,9 @@ export type UserType = {
   pic: string;
   token: string;
   _id: string;
+  isAdmin: boolean;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type ChatType = {

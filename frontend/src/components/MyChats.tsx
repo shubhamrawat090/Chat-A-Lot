@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ChatState, ChatType, UserType } from "../Context/ChatProvider";
 import { Box, Button, Stack, Text, useToast } from "@chakra-ui/react";
 import { apiConnector } from "../services/axiosInstance";
@@ -7,14 +7,18 @@ import ChatLoading from "./ChatLoading";
 import { getSender } from "../config/ChatLogics";
 import GroupChatModal from "./miscellaneous/GroupChatModal";
 
-const MyChats = () => {
+interface MyChatsProps {
+  fetchAgain: boolean;
+}
+
+const MyChats = ({ fetchAgain }: MyChatsProps) => {
   const { selectedChat, setSelectedChat, user, chats, setChats } = ChatState();
 
   const [loggedUser, setLoggedUser] = useState<UserType>({} as UserType);
 
   const toast = useToast();
 
-  const fetchChats = async () => {
+  const fetchChats = useCallback(async () => {
     try {
       const headers = {
         Authorization: `Bearer ${user?.token}`,
@@ -41,7 +45,7 @@ const MyChats = () => {
         position: "bottom-left",
       });
     }
-  };
+  }, [user?.token, setChats, toast]);
 
   useEffect(() => {
     const cache = localStorage.getItem("userInfo");
@@ -51,7 +55,7 @@ const MyChats = () => {
       setLoggedUser({} as UserType);
     }
     fetchChats();
-  }, []);
+  }, [fetchAgain, fetchChats]);
 
   return (
     <Box

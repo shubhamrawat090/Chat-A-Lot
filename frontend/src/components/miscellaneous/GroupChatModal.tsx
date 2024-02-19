@@ -10,13 +10,13 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Spinner,
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
 import { ReactNode, useState } from "react";
-import { ChatState, ChatType } from "../../Context/ChatProvider";
+import { ChatState, ChatType, UserType } from "../../Context/ChatProvider";
 import { apiConnector } from "../../services/axiosInstance";
-import { SearchResultType } from "./SideDrawer";
 import UserListItem from "../UserAvatar/UserListItem";
 import UserBadgeItem from "../UserAvatar/UserBadgeItem";
 import { AxiosError } from "axios";
@@ -28,9 +28,9 @@ interface GroupChatModalProps {
 const GroupChatModal = ({ children }: GroupChatModalProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [groupChatName, setGroupChatName] = useState("");
-  const [selectedUsers, setSelectedUsers] = useState<SearchResultType[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<UserType[]>([]);
   const [search, setSearch] = useState("");
-  const [searchResult, setSearchResult] = useState<SearchResultType[]>([]);
+  const [searchResult, setSearchResult] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(false);
 
   const toast = useToast();
@@ -57,7 +57,7 @@ const GroupChatModal = ({ children }: GroupChatModalProps) => {
         undefined,
         headers
       );
-      const results: SearchResultType[] = data as SearchResultType[];
+      const results: UserType[] = data as UserType[];
 
       console.log(results);
       setLoading(false);
@@ -143,7 +143,7 @@ const GroupChatModal = ({ children }: GroupChatModalProps) => {
     }
   };
 
-  const handleGroup = (userToAdd: SearchResultType) => {
+  const handleGroup = (userToAdd: UserType) => {
     console.log(selectedUsers);
     if (selectedUsers.find((user) => user._id === userToAdd._id)) {
       toast({
@@ -159,7 +159,7 @@ const GroupChatModal = ({ children }: GroupChatModalProps) => {
     setSelectedUsers([...selectedUsers, userToAdd]);
   };
 
-  const handleDelete = (userToDelete: SearchResultType) => {
+  const handleDelete = (userToDelete: UserType) => {
     setSelectedUsers(
       selectedUsers.filter(
         (selectedUser) => selectedUser._id !== userToDelete._id
@@ -212,7 +212,7 @@ const GroupChatModal = ({ children }: GroupChatModalProps) => {
 
             {/* render searched users - show top 4 results only */}
             {loading ? (
-              <div>loading</div>
+              <Spinner size={"lg"} />
             ) : (
               searchResult
                 ?.slice(0, 4)

@@ -21,7 +21,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { ChatState, ChatType } from "../../Context/ChatProvider";
+import { ChatState, ChatType, UserType } from "../../Context/ChatProvider";
 import ProfileModal from "./ProfileModal";
 import { useNavigate } from "react-router-dom";
 import { apiConnector } from "../../services/axiosInstance";
@@ -29,19 +29,9 @@ import ChatLoading from "../ChatLoading";
 import UserListItem from "../UserAvatar/UserListItem";
 import { AxiosError } from "axios";
 
-export interface SearchResultType {
-  _id: string;
-  name: string;
-  email: string;
-  pic: string;
-  isAdmin: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
 const SideDrawer = () => {
   const [search, setSearch] = useState("");
-  const [searchResult, setSearchResult] = useState<SearchResultType[]>([]);
+  const [searchResult, setSearchResult] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingChat, setLoadingChat] = useState(false);
 
@@ -83,7 +73,7 @@ const SideDrawer = () => {
         headers
       );
 
-      const results: SearchResultType[] = data as SearchResultType[];
+      const results: UserType[] = data as UserType[];
 
       console.log(results);
       setLoading(false);

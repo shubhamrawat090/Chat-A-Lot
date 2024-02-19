@@ -18,12 +18,13 @@ import { ViewIcon } from "@chakra-ui/icons";
 
 interface ProfileModalProps {
   user: UserType | null;
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 // A reusable component. If children are present it will display then otherwise it will display eye icon button
 const ProfileModal: React.FC<ProfileModalProps> = ({ user, children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
     <>
       {children ? (

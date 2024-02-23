@@ -73,7 +73,10 @@ const allUsers = asyncHandler(async (req, res) => {
     : {};
 
   // First match the users by the regex expression then give me all the results which do not match the current user
-  const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
+  const users = await User.find({ _id: { $ne: req.user._id } })
+    .select("-password") // Don't need to send the password
+    .find(keyword);
+
   res.send(users);
 });
 

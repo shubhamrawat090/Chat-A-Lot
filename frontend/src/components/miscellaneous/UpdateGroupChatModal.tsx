@@ -26,11 +26,13 @@ import UserListItem from "../UserAvatar/UserListItem";
 interface UpdateGroupChatModalProps {
   fetchAgain: boolean;
   setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
+  fetchMessages: () => Promise<void>;
 }
 
 const UpdateGroupChatModal = ({
   fetchAgain,
   setFetchAgain,
+  fetchMessages,
 }: UpdateGroupChatModalProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [groupChatName, setGroupChatName] = useState("");
@@ -85,6 +87,7 @@ const UpdateGroupChatModal = ({
         ? setSelectedChat(null)
         : setSelectedChat(result);
       setFetchAgain(!fetchAgain);
+      fetchMessages(); // After removing the user we need to refresh the messages as well
       setLoading(false);
     } catch (err) {
       const error = err as AxiosError;

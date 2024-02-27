@@ -16,6 +16,7 @@ import { useCallback, useEffect, useState } from "react";
 import { apiConnector } from "../services/axiosInstance";
 import "./styles.css";
 import ScrollableChat from "./ScrollableChat";
+import { Socket, io } from "socket.io-client";
 
 interface SingleChatProps {
   fetchAgain: boolean;
@@ -31,14 +32,27 @@ export interface MessageType {
   updatedAt: Date;
 }
 
+// URL of our backend(where websocket logic resides) for websocket connection
+const ENDPOINT = "http://localhost:5000";
+let socket: Socket;
+let selectedChatCompare: ChatType | null;
+
 const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState("");
+  const [socketConnected, setSocketConnected] = useState(false);
 
   const toast = useToast();
 
   const { user, selectedChat, setSelectedChat } = ChatState();
+
+  // Initially when a chat is opened then we connect to our websocket
+  useEffect(() => {
+    socket = io(ENDPOINT); // Establishes websocket connection with the client
+    socket.emit("setup", user); // We emit to the "setup" listener which creates a room for THIS CLIENT
+    socket.on("connected", () => setSocketConnected(true)); // Basically, when a room for THIS CLIENT is created then the backend emits a message "connected" which the client listens to in order to confirm the establishment of a successful connection
+  }, [user]);
 
   const fetchMessages = useCallback(async () => {
     if (!selectedChat) return;
@@ -57,9 +71,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
       );
 
       const results = data as MessageType[];
-      console.log("messagesssss: ", results);
       setMessages(results);
       setLoading(false);
+
+      // Since, we have fetched all the messages for this chat/conversation
+      // We will now do emit/tell the "join room" event to create a 1-1 conversation room for THIS CLIENT and other users that are part of that chat
+      socket.emit("join chat", selectedChat._id);
     } catch (error) {
       toast({
         title: "Error Occurred!",
@@ -74,7 +91,25 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
 
   useEffect(() => {
     fetchMessages();
+
+    selectedChatCompare = selectedChat; // Keep a track of the selected chat to identify whether to send the emit the message or give a notification instead
   }, [fetchMessages, selectedChat]);
+
+  // Every time the component is changed we fire up this useEffect
+  useEffect(() => {
+    socket.on("message received", (newMessageReceived: MessageType) => {
+      // If no chat is opened OR the opened chat is NOT the chat for which this new message is intended then we simply give notification for that chat
+      if (
+        !selectedChatCompare ||
+        selectedChatCompare._id !== newMessageReceived.chat._id
+      ) {
+        // give notification
+      } else {
+        // The new message is intended for out chat so we append it in out array
+        setMessages([...messages, newMessageReceived]);
+      }
+    });
+  });
 
   const sendMessage = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter" && newMessage) {
@@ -98,6 +133,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
         const results: MessageType = data as MessageType;
         console.log("message: ", results);
 
+        // Emit the websocket and let it know that a new message has been sent so that it can send it to others as well
+        socket.emit("new message", results);
         setMessages([...messages, results]);
       } catch (error) {
         toast({

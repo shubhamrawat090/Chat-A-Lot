@@ -19,8 +19,6 @@ const app = express();
 // Middleware - to parse/accept json data
 app.use(express.json());
 
-const PORT = process.env.PORT || 5000;
-
 app.use(cors());
 
 app.get("/", (req, res) => {
@@ -36,6 +34,51 @@ app.use("/api/message", messageRoutes);
 app.use(notFound); // if any route url doesn't exist. It will fall on to this notFound middleware
 app.use(errorHandler); // If still any other error occurred it will fall on to this middleware
 
-app.listen(PORT, () => {
+const PORT = process.env.PORT || 5000;
+
+const server = app.listen(PORT, () => {
   console.log(`Server started at ${PORT}`.yellow.bold);
+});
+
+const io = require("socket.io")(server, {
+  pingTimeout: 60000, // 60 seconds of inactivity will result in closing of connection to save bandwidth
+  cors: {
+    origin: "http://localhost:5173", // Allowing out frontend URL to send requests
+  },
+});
+
+// This is where out websocket connection logic resides.
+io.on("connection", (socket) => {
+  console.log("connected to socket.io");
+
+  socket.on("setup", (userData) => {
+    socket.join(userData._id); // We create a room for that particular user only
+    console.log(userData._id);
+    socket.emit("connected");
+  });
+
+  // This is an event for 1-1/group conversation when a chat is clicked and the conversation is opened
+  socket.on("join chat", (room) => {
+    // We get the roomID from the frontend(Probably _id of the chat) which uniquely determines the entire chat
+    // We create a room via this ID for that user
+    console.log("User Joined Room: " + room);
+    socket.join(room);
+  });
+
+  // This handles the sending of message via websockets and is triggered from the client side after the backend request is completed for sending the message
+  socket.on("new message", (newMessageReceived) => {
+    var chat = newMessageReceived.chat;
+
+    // For testing purpose, if there are no users then we will store a log of that in the backend
+    if (!chat.users) return console.log("chat.users not defined");
+
+    // If a new message is received the we send it to all the users in that chat except the sender
+    chat.users.forEach((user) => {
+      if (user._id === newMessageReceived.sender._id) return;
+
+      // In the room with the user id which we created in "setup" we send this message so that each user can receive it.
+      // On the client side, each user is listening to this "message received" event and will append this message once received
+      socket.in(user._id).emit("message received", newMessageReceived);
+    });
+  });
 });

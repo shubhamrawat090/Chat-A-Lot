@@ -17,6 +17,8 @@ import { apiConnector } from "../services/axiosInstance";
 import "./styles.css";
 import ScrollableChat from "./ScrollableChat";
 import { Socket, io } from "socket.io-client";
+import Lottie from "react-lottie";
+import animationData from "../animations/typing.json";
 
 interface SingleChatProps {
   fetchAgain: boolean;
@@ -42,6 +44,18 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState("");
   const [socketConnected, setSocketConnected] = useState(false);
+  const [typing, setTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+
+  // Options for lottie animations component
+  const defaultOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: animationData,
+    rendererSettings: {
+      preserveAspectRatio: "xMidYMid slice",
+    },
+  };
 
   const toast = useToast();
 
@@ -49,9 +63,15 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
 
   // Initially when a chat is opened then we connect to our websocket
   useEffect(() => {
-    socket = io(ENDPOINT); // Establishes websocket connection with the client
-    socket.emit("setup", user); // We emit to the "setup" listener which creates a room for THIS CLIENT
-    socket.on("connected", () => setSocketConnected(true)); // Basically, when a room for THIS CLIENT is created then the backend emits a message "connected" which the client listens to in order to confirm the establishment of a successful connection
+    // Establishes websocket connection with the client
+    socket = io(ENDPOINT);
+    // We emit to the "setup" listener which creates a room for THIS CLIENT
+    socket.emit("setup", user);
+    // Basically, when a room for THIS CLIENT is created then the backend emits a message "connected" which the client listens to in order to confirm the establishment of a successful connection
+    socket.on("connected", () => setSocketConnected(true));
+    // We toggle the isTyping flag depending on whether we get "typing" or "stop typing" from the server socket
+    socket.on("typing", () => setIsTyping(true));
+    socket.on("stop typing", () => setIsTyping(false));
   }, [user]);
 
   const fetchMessages = useCallback(async () => {
@@ -113,6 +133,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
 
   const sendMessage = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter" && newMessage) {
+      // NOTE: This is REALLY IMPORTANT to emit stop typing inside the if condition as we only stop typing when ENTER is pressed and the messages is sent
+      socket.emit("stop typing", selectedChat?._id); // once we send the message/hit enter we stop the typing indicator
       try {
         const headers = {
           Authorization: `Bearer ${user?.token}`,
@@ -131,7 +153,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
         );
 
         const results: MessageType = data as MessageType;
-        console.log("message: ", results);
 
         // Emit the websocket and let it know that a new message has been sent so that it can send it to others as well
         socket.emit("new message", results);
@@ -149,9 +170,36 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
     }
   };
 
+  // TASK: Need to keep a track of who is typing so that in a group chat we can understand who is typing
   const typingHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newMessage = e.target.value;
     setNewMessage(newMessage);
+
+    // Typing Indicator logic
+    if (!socketConnected) return;
+
+    if (!typing) {
+      // If we weren't typing before then we set the the typing flag and emit to websocket that we are typing
+      // We emit the websocket well indicating that we are typing
+      setTyping(true);
+      socket.emit("typing", selectedChat?._id);
+    }
+
+    //////// SOME ISSUE WITH THIS FUNCTIONALITY: What if we keep on typing after 3 seconds also.
+    /// NEED TO CHECK OUT WHETHER TO DEBOUNCE OR THROTTLE
+    // Throttle like function which after 3 seconds checks if we have stopped typing then it indicates that to the websocket
+    const lastTypingTime = new Date().getTime();
+    const timerLength = 3000; // after 3 seconds we stop the typing
+    setTimeout(() => {
+      const timeNow = new Date().getTime();
+      const timeDiff = timeNow - lastTypingTime;
+
+      // If 3 seconds have passed and the typing flag is still true
+      if (timeDiff >= timerLength && typing) {
+        socket.emit("stop typing", selectedChat?._id);
+        setTyping(false);
+      }
+    }, timerLength);
   };
 
   //   If any chat is selected then select that chat. Otherwise, show empty screen
@@ -220,6 +268,18 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
 
             {/* Input tag to enter, send chat */}
             <FormControl onKeyDown={sendMessage} isRequired mt={3}>
+              {isTyping ? (
+                <div
+                  style={{
+                    marginBottom: 15,
+                    width: "max-content",
+                  }}
+                >
+                  <Lottie width={70} options={defaultOptions} />
+                </div>
+              ) : (
+                <></>
+              )}
               <Input
                 variant="filled"
                 bg={"#E0E0E0"}

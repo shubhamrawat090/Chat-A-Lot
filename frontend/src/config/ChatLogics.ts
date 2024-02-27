@@ -92,7 +92,6 @@ export const isSameSenderMargin = (
   } else {
     margin = "auto";
   }
-  console.log(currMsgIdx, "margin: ", margin);
   return margin;
 };
 

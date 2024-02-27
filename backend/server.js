@@ -65,6 +65,10 @@ io.on("connection", (socket) => {
     socket.join(room);
   });
 
+  // This socket is for handling the typing of user 1 to user 2. This means when client 1 starts typing then it emits it to this "typing" event/socket and the server sends the "Typing" OR "Stop Typing" indication to client 2(or other clients if it is a group chat)
+  socket.on("typing", (room) => socket.in(room).emit("typing"));
+  socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));
+
   // This handles the sending of message via websockets and is triggered from the client side after the backend request is completed for sending the message
   socket.on("new message", (newMessageReceived) => {
     var chat = newMessageReceived.chat;
@@ -80,5 +84,11 @@ io.on("connection", (socket) => {
       // On the client side, each user is listening to this "message received" event and will append this message once received
       socket.in(user._id).emit("message received", newMessageReceived);
     });
+  });
+
+  // Cleanup of sockets
+  socket.off("setup", () => {
+    console.log("USER DISCONNECTED");
+    socket.leave(userData._id);
   });
 });

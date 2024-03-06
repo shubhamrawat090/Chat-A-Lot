@@ -2,7 +2,8 @@ import axios, { AxiosResponse } from "axios";
 
 // Create Axios instance with default configuration
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  // baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: "http://localhost:5000",
 });
 
 // Mandatory headers in case no headers are passed

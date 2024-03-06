@@ -35,7 +35,6 @@ const Signup = () => {
   const navigate = useNavigate();
 
   const postDetails = (pics: File | null | undefined) => {
-    console.log(pics);
     setLoading(true);
     if (pics === undefined) {
       toast({
@@ -62,7 +61,6 @@ const Signup = () => {
         .then((res) => res.json())
         .then((data: { url: string }) => {
           setPic(data.url.toString());
-          console.log(data.url.toString());
           setLoading(false);
         })
         .catch((err) => {
@@ -117,7 +115,6 @@ const Signup = () => {
       };
 
       const { data } = await apiConnector("POST", "/api/user", body);
-      console.log(data);
 
       toast({
         title: "Registration Successful",

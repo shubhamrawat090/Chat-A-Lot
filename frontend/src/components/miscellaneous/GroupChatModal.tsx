@@ -59,7 +59,6 @@ const GroupChatModal = ({ children }: GroupChatModalProps) => {
       );
       const results: UserType[] = data as UserType[];
 
-      console.log(results);
       setLoading(false);
       setSearchResult(results);
     } catch (error) {
@@ -144,7 +143,6 @@ const GroupChatModal = ({ children }: GroupChatModalProps) => {
   };
 
   const handleGroup = (userToAdd: UserType) => {
-    console.log(selectedUsers);
     if (selectedUsers.find((user) => user._id === userToAdd._id)) {
       toast({
         title: "User already added",

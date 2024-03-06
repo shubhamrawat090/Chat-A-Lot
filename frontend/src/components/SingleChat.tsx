@@ -59,7 +59,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
 
   const toast = useToast();
 
-  const { user, selectedChat, setSelectedChat } = ChatState();
+  const { user, selectedChat, setSelectedChat, notification, setNotification } =
+    ChatState();
 
   // Initially when a chat is opened then we connect to our websocket
   useEffect(() => {
@@ -124,6 +125,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
         selectedChatCompare._id !== newMessageReceived.chat._id
       ) {
         // give notification
+        if (!notification.includes(newMessageReceived)) {
+          setNotification([newMessageReceived, ...notification]);
+          setFetchAgain(!fetchAgain); // Fetch all of the chats again
+        }
       } else {
         // The new message is intended for out chat so we append it in out array
         setMessages([...messages, newMessageReceived]);

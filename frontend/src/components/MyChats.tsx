@@ -32,7 +32,6 @@ const MyChats = ({ fetchAgain }: MyChatsProps) => {
       );
 
       const results: ChatType[] = data as ChatType[];
-      console.log("chats: ", results);
 
       setChats(results);
     } catch (err) {

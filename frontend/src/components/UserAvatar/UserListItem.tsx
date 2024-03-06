@@ -1,8 +1,8 @@
 import { Avatar, Box, Text } from "@chakra-ui/react";
-import { SearchResultType } from "../miscellaneous/SideDrawer";
+import { UserType } from "../../Context/ChatProvider";
 
 interface UserListItemProps {
-  user: SearchResultType;
+  user: UserType;
   handleFunction: () => void;
 }
 

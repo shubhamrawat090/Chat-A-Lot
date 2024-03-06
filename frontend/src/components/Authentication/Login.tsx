@@ -47,7 +47,6 @@ const Login = () => {
       };
 
       const { data } = await apiConnector("POST", "/api/user/login", body);
-      console.log(data);
 
       toast({
         title: "Login Successful",

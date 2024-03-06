@@ -5,6 +5,7 @@ const { chats } = require("./dummyData/data");
 const connectDB = require("./config/db");
 const colors = require("colors");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
+const path = require("path");
 
 dotenv.config();
 connectDB();
@@ -21,14 +22,35 @@ app.use(express.json());
 
 app.use(cors());
 
-app.get("/", (req, res) => {
-  res.send("API is running successfully");
-});
-
 // All the user routes will start with /api/user
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/message", messageRoutes);
+
+// ---------------------------- DEPLOYMENT ---------------------------
+
+// THIS CODE BASICALLY RUNS THE BUILT FRONTEND CODE(in dist folder) AT PORT 5000 in localhost:5000
+
+// Present working directory. __dirname is a reserved keyword so we took __dirname1
+const __dirname1 = path.resolve();
+
+// Check if the environment is production
+if (process.env.NODE_ENV === "production") {
+  // Serve static files from the frontend/dist directory
+  app.use(express.static(path.join(__dirname1, "/frontend/dist")));
+
+  // For all routes that are not found, serve the index.html file from the frontend/dist directory
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname1, "frontend", "dist", "index.html"));
+  });
+} else {
+  // If not in production mode, respond with a simple message
+  app.get("/", (req, res) => {
+    res.send("API is Running Successfully");
+  });
+}
+
+// ---------------------------- DEPLOYMENT ---------------------------
 
 // Our custom created middlewares
 app.use(notFound); // if any route url doesn't exist. It will fall on to this notFound middleware

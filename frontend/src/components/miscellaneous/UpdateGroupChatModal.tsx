@@ -210,7 +210,6 @@ const UpdateGroupChatModal = ({
       );
       const results: UserType[] = data as UserType[];
 
-      console.log(results);
       setLoading(false);
       setSearchResult(results);
     } catch (error) {

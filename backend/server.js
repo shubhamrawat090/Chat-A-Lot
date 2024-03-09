@@ -65,7 +65,7 @@ const server = app.listen(PORT, () => {
 const io = require("socket.io")(server, {
   pingTimeout: 60000, // 60 seconds of inactivity will result in closing of connection to save bandwidth
   cors: {
-    origin: "http://localhost:5173", // Allowing out frontend URL to send requests
+    origin: "http://localhost:5000", // Allowing out frontend URL to send requests
   },
 });
 

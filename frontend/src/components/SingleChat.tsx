@@ -17,7 +17,7 @@ import { apiConnector } from "../services/axiosInstance";
 import "./styles.css";
 import ScrollableChat from "./ScrollableChat";
 import { Socket, io } from "socket.io-client";
-import Lottie from "react-lottie";
+import Lottie from "lottie-react";
 import animationData from "../animations/typing.json";
 
 interface SingleChatProps {
@@ -46,16 +46,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
   const [socketConnected, setSocketConnected] = useState(false);
   const [typing, setTyping] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-
-  // Options for lottie animations component
-  const defaultOptions = {
-    loop: true,
-    autoplay: true,
-    animationData: animationData,
-    rendererSettings: {
-      preserveAspectRatio: "xMidYMid slice",
-    },
-  };
 
   const toast = useToast();
 
@@ -280,7 +270,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
                     width: "max-content",
                   }}
                 >
-                  <Lottie width={70} options={defaultOptions} />
+                  <Lottie
+                    animationData={animationData}
+                    loop={true}
+                    width={70}
+                  />
                 </div>
               ) : (
                 <></>

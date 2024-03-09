@@ -13,20 +13,21 @@
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
     "@chakra-ui/react": "^2.8.2",
-    "@emotion/react": "^11.11.3",
+    "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.0",
     "@types/react-dom": "^18.2.20",
-    "@types/react-lottie": "^1.2.10",
+    "@vitejs/plugin-react": "^4.2.1",
     "axios": "^1.6.5",
-    "framer-motion": "^11.0.3",
+    "chat-a-lot": "file:..",
+    "framer-motion": "^11.0.8",
+    "frontend": "file:",
+    "lottie-react": "^2.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-lottie": "^1.2.4",
     "react-router-dom": "^6.21.3",
     "react-scrollable-feed": "^2.0.1",
     "socket.io-client": "^4.7.4",
-    "vite": "^5.0.8",
-    "@vitejs/plugin-react": "^4.2.1"
+    "vite": "^5.0.8"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",

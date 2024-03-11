@@ -3,7 +3,8 @@ import axios, { AxiosResponse } from "axios";
 // Create Axios instance with default configuration
 const axiosInstance = axios.create({
   // baseURL: import.meta.env.VITE_API_BASE_URL,
-  baseURL: "http://localhost:5000",
+  // baseURL: "http://localhost:5000",
+  baseURL: "https://chat-a-lot-x731.onrender.com/",
 });
 
 // Mandatory headers in case no headers are passed

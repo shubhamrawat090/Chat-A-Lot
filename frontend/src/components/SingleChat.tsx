@@ -35,7 +35,7 @@ export interface MessageType {
 }
 
 // URL of our backend(where websocket logic resides) for websocket connection
-const ENDPOINT = "http://localhost:5000";
+const ENDPOINT = "https://chat-a-lot-x731.onrender.com";
 let socket: Socket;
 let selectedChatCompare: ChatType | null;
 
